@@ -14,7 +14,7 @@ import matplotlib.dates as mdates
 import seaborn as sns
 
 
-def data_preprocessing():
+def load_data():
     contract_df = pd.read_csv('datasets/final_provider/contract.csv')
     internet_df = pd.read_csv('datasets/final_provider/internet.csv')
     personal_df = pd.read_csv('datasets/final_provider/personal.csv')
@@ -36,7 +36,7 @@ def data_preprocessing():
 
     ## Cambiando el tipo de dato en las fechas:
     total_df['BeginDate'] = pd.to_datetime(total_df['BeginDate'])
-    total_df['EndDate'] = pd.to_datetime(total_df['EndDate'], errors = 'coerce') #  # Coerción para manejar valores no válidos
+    total_df['EndDate'] = pd.to_datetime(total_df['EndDate'], format='%Y-%m-%d', errors = 'coerce') #  # Coerción para manejar valores no válidos
     total_df['EndDate'].fillna(pd.NaT, inplace = True)
 
     # Obtener el rango de fechas en la columna BeginDate
@@ -86,11 +86,13 @@ def data_preprocessing():
     # Reemplazar los valores NaN en la columna 'ContractDuration' con un valor predeterminado, como -1
     total_df['ContractDuration'].fillna(-1, inplace=True)   
 
-    #print(total_df)
+    # Crear la nueva columna 'num_services' que cuenta el número de 'yes' en las columnas de servicios
+    total_df['num_services'] = total_df[internet_services].apply(lambda row: row.eq('Yes').sum(), axis=1)
+
+    
+
     return total_df
 
-
-total_df = data_preprocessing()
 
 def correlation_matrix_code(total_df):
     
@@ -102,5 +104,17 @@ def correlation_matrix_code(total_df):
 
     return correlation_matrix
 
+
+def correlation_matrix_code_2(total_df):
+    # Aplicar One-Hot Encoding a las variables categóricas
+    total_df_encoded = pd.get_dummies(total_df[['OnlineSecurity', 'OnlineBackup', 'DeviceProtection',
+                                                'TechSupport', 'StreamingTV', 'StreamingMovies', 'PaymentMethod',
+                                                'Type', 'PaperlessBilling', 'gender', 'SeniorCitizen', 'Partner', 'Dependents', 'MultipleLines',
+                                                'estado_contrato','TotalCharges', 'MonthlyCharges','BeginDate','EndDate']], drop_first=True)
+
+    # Calcular la matriz de correlación
+    correlation_matrix_2 = total_df_encoded.corr()
+
+    return correlation_matrix_2, total_df_encoded
 
 
