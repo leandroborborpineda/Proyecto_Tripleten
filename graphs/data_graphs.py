@@ -65,3 +65,17 @@ def service_clients_count(total_df_encoded):
     plt.savefig('outputs/figures/service_clients_count.png')
     plt.close()
 
+def contract_status_graph(data_df_encoded):
+
+    estado_contrato = data_df_encoded['contract_status'].value_counts()
+
+    # Crear el gráfico de barras
+    plt.figure(figsize=(8, 6))
+    estado_contrato.plot(kind='bar', color='skyblue')
+    plt.title('Distribución de estados de contrato')
+    plt.xlabel('Estado de contrato')
+    plt.ylabel('Frecuencia')
+    plt.xticks(rotation=45)
+    plt.grid(axis='y')
+    plt.savefig('outputs/figures/contract_status_graph.png')
+    plt.close()

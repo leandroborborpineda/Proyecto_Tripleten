@@ -12,6 +12,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import seaborn as sns
+from sklearn.preprocessing import StandardScaler
 
 
 def load_data():
@@ -36,7 +37,10 @@ def load_data():
 
     ## Cambiando el tipo de dato en las fechas:
     total_df['BeginDate'] = pd.to_datetime(total_df['BeginDate'])
-    total_df['EndDate'] = pd.to_datetime(total_df['EndDate'], format='%Y-%m-%d', errors = 'coerce') #  # Coerción para manejar valores no válidos
+    total_df['EndDate'] = pd.to_datetime(total_df['EndDate'], errors = 'coerce') #  # Coerción para manejar valores no válidos
+    
+
+
     total_df['EndDate'].fillna(pd.NaT, inplace = True)
 
     # Obtener el rango de fechas en la columna BeginDate
@@ -64,9 +68,6 @@ def load_data():
 
     ## Rellenando los datos ausentes.
     total_df[internet_services] = total_df[internet_services].fillna("No")
-
-    ## Rellenando los datos ausentes
-    total_df['estado_contrato'] = total_df['EndDate'].isnull()
 
     ## Creando la columna de "estado_contrato" donde "EndDate" es un dato ausente
     total_df['estado_contrato'] = total_df['EndDate'].isnull()
@@ -117,4 +118,45 @@ def correlation_matrix_code_2(total_df):
 
     return correlation_matrix_2, total_df_encoded
 
+
+def clean_data(total_df):
+    #Seleccionando y eliminando las columnas indicadas
+    data_df = total_df.drop(['customerID', 'BeginDate', 'EndDate', 'gender', 'EndDate_2', 'Cancelado', 'TotalCharges'], axis=1)
+    data_df=data_df.rename(columns={'Type':'plan_type', 'PaperlessBilling':'paperless_billing', 'PaymentMethod':'payment_method',
+                                'MonthlyCharges':'monthly_charges', 'TotalCharges':'total_charges', 'InternetService':'internet_service',
+                                'OnlineSecurity':'online_security','OnlineBackup':'online_backup','DeviceProtection':'device_protection',
+                                'TechSupport':'tech_support','StreamingTV':'streaming_tv', 'StreamingMovies':'streaming_movies',
+                                'SeniorCitizen':'senior_citizen', 'Partner':'partner', 'Dependents':'dependents', 'MultipleLines':'multiple_lines',
+                                'ContractDuration':'contract_duration', 'estado_contrato':'contract_status' })
+    
+    # Seleccionar solo las columnas categóricas para codificar
+    categorical_columns_sna = ['plan_type', 'paperless_billing', 'payment_method', 'online_security','online_backup', 
+                           'device_protection', 'tech_support', 'streaming_tv', 'streaming_movies', 'senior_citizen',
+                           'partner', 'dependents']
+
+    categorical_columns_na = ['internet_service', 'multiple_lines' ]
+
+    # Realizar one-hot encoding en las columnas categóricas
+    data_df_encoded_1 = pd.get_dummies(data_df, columns=categorical_columns_sna, drop_first = True)
+
+    data_df_encoded = pd.get_dummies(data_df_encoded_1, columns=categorical_columns_na)
+
+    # Seleccionar solo las características numéricas para estandarizar
+    numeric_features = ['monthly_charges', 'contract_duration', 'num_services']
+    numeric_data = data_df_encoded[numeric_features]
+
+    # Inicializar el StandardScaler
+    scaler = StandardScaler()
+
+    # Estandarizar las características numéricas
+    scaled_data = scaler.fit_transform(numeric_data)
+
+    # Convertir el resultado a DataFrame y asignar nombres de columnas
+    scaled_df = pd.DataFrame(scaled_data, columns=numeric_features)
+
+    # Reemplazar las características numéricas originales con las estandarizadas en el DataFrame original
+    data_df_encoded[numeric_features] = scaled_df
+
+    
+    return data_df_encoded
 
