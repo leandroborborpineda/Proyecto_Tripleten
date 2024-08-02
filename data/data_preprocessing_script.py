@@ -1,11 +1,6 @@
 import pandas as pd
 from functools import reduce
-import os
-import sys
-import math
 from scipy import stats as st
-import time
-import random 
 import numpy as np
 import pandas as pd
 import matplotlib
