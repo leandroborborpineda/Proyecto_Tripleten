@@ -6,3 +6,5 @@ Se debe instalar con
 pip install lightgbm
 pip install catboost
 pip install xgboost
+
+pip install tqdm

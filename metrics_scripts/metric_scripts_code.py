@@ -8,10 +8,13 @@ from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
 
+import pandas as pd
 import matplotlib
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import seaborn as sns
+
 
 
 def sklearn_metrics(target_valid,  predictions):
@@ -54,6 +57,14 @@ def prec_recall_curve(target_valid, probabilities):
     plt.title('Precision-Recall Curve')
     plt.show() 
 
+def recall_presicion_roc(model, features_valid, target_valid):
+    pred_probabilities = model.predict_proba(features_valid)
+    probabilities_one_valid = pred_probabilities[:,1]
+    prec_recall_curve(target_valid, probabilities_one_valid)
+    roc_curve_func(target_valid, probabilities_one_valid)
+    auc_roc=roc_auc_score(target_valid, probabilities_one_valid)
+    print("AUC-ROC: ", auc_roc)
+
 
 ### CUrva ROC
 
@@ -82,3 +93,6 @@ def roc_curve_func(target_valid_f, probabilities_one_valid_f):
 
 
     plt.show()
+
+
+

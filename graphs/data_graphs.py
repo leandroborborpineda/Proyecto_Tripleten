@@ -6,6 +6,11 @@ import os
 
 from data.data_preprocessing_script import correlation_matrix_code
 
+## Modelo Random Forest
+from sklearn.ensemble import RandomForestClassifier
+import pandas as pd
+
+
 
 def hist_contract_dur(total_df):
 
@@ -78,4 +83,30 @@ def contract_status_graph(data_df_encoded):
     plt.xticks(rotation=45)
     plt.grid(axis='y')
     plt.savefig('outputs/figures/contract_status_graph.png')
+    plt.close()
+
+
+
+def features_importances_graph(features_train, target_train):
+
+    model_rf = RandomForestClassifier(max_depth=10, n_estimators = 150, random_state=0)
+    model_rf.fit(features_train, target_train)
+
+    # Obtener las importancias de las características
+    importances_rf = model_rf.feature_importances_
+
+    # Crear un DataFrame para las importancias
+    feature_importances_df_rf = pd.DataFrame({
+        'Feature': features_train.columns,
+        'Importance': importances_rf
+    }).sort_values(by='Importance', ascending=False)
+
+    # Visualizar la importancia de las características
+    plt.figure(figsize=(10, 6))
+    plt.barh(feature_importances_df_rf['Feature'], feature_importances_df_rf['Importance'])
+    plt.xlabel('Importance')
+    plt.title('Feature Importances (Random Forest)')
+    plt.gca().invert_yaxis()
+    
+    plt.savefig('outputs/figures/cofeatures_importances_graph.png')
     plt.close()
